@@ -1,12 +1,23 @@
 #!/usr/bin/env php
 <?php
-
-require __DIR__ . '/../vendor/autoload.php';
+// Locate Composer autoload (dev, global, or dependency install)
+$paths = [
+    __DIR__ . '/../vendor/autoload.php',      // repo dev
+    dirname(__DIR__, 3) . '/autoload.php',    // composer global (~/.composer/vendor/autoload.php or ~/.config/composer/vendor/autoload.php)
+    __DIR__ . '/../../../autoload.php',       // as dependency
+];
+foreach ($paths as $p) {
+    if (is_file($p)) { require $p; break; }
+}
+if (!class_exists(\Symfony\Component\Console\Application::class)) {
+    fwrite(STDERR, "Unable to locate Composer autoload.\nTried:\n - ".implode("\n - ", $paths)."\n");
+    exit(1);
+}
 
 use Symfony\Component\Console\Application;
 use NourApi\Installer\NewCommand;
 
-$app = new Application('Nour-API Installer', '1.0.0');
+$app = new Application('Nour-API Installer', '1.0.2');
 $app->add(new NewCommand());
 $app->setDefaultCommand('new', true);
 $app->run();
