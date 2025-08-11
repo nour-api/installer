@@ -15,7 +15,7 @@ class NewCommand extends Command
 
     public function __construct()
     {
-        parent::__construct('new'); // <-- set the command name explicitly
+        parent::__construct('new');
     }
 
     protected function configure(): void
@@ -49,7 +49,7 @@ class NewCommand extends Command
         $refOpt = (string) $input->getOption('ref');
         $ref    = $refOpt === 'latest' ? $package : "{$package}:{$refOpt}";
 
-        $io->title("ðŸš€ Creating Nour-API app: {$name}");
+        $io->title("Creating Nour-API app: {$name}");
 
         // Build composer create-project command
         $cmd = ['composer', 'create-project', $ref, $name];
@@ -69,22 +69,22 @@ class NewCommand extends Command
         // Post steps: copy .env if present; run your framework key:generate if applicable; init git.
         if (is_file($cwd.'/.env.example') && !is_file($cwd.'/.env')) {
             @copy($cwd.'/.env.example', $cwd.'/.env');
-            $io->writeln('â€¢ Created .env from .env.example');
+            $io->writeln('Created .env from .env.example');
         }
 
         // Example: if your skeleton includes a CLI command
         if (is_file($cwd.'/artisan')) {
-            $this->runProcess(['php', 'artisan', 'key:generate'], $cwd, $output);
+            $this->runProcess(['php', 'artisan', 'migrate'], $cwd, $output);
         }
 
         if (! $input->getOption('no-git')) {
             $this->runProcess(['git', 'init', '-q'], $cwd, $output);
             $this->runProcess(['git', 'add', '-A'], $cwd, $output);
             $this->runProcess(['git', 'commit', '-m', 'Initialize Nour-API app'], $cwd, $output);
-            $io->writeln('â€¢ Initialized Git repository');
+            $io->writeln('Initialized Git repository');
         }
 
-        $io->success('Nour-API project is ready ðŸŽ‰');
+        $io->success('Nour-API project is ready √');
         $io->writeln("Next steps:");
         $io->writeln("  cd {$name}");
         $io->writeln("  php -S localhost:8000 -t public   # or your preferred server");
@@ -107,4 +107,3 @@ class NewCommand extends Command
         return $proc->getExitCode() ?? 1;
     }
 }
-
