@@ -1,0 +1,24 @@
+{
+    "name": "nour-api/installer",
+    "description": "The Nour-API installer",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "NourApi\\Installer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ajmal Alkhaledi",
+            "email": "ajmalalkhaledi@gmail.com"
+        }
+    ],
+    "require": {
+    "php": "^8.2",
+    "symfony/console": "^7.0",
+    "symfony/process": "^7.0",
+    "symfony/filesystem": "^7.0"
+  },
+  "bin": ["bin/nour-api"]
+}
