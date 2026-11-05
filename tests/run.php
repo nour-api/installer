@@ -61,6 +61,8 @@ try {
     $env = file_get_contents($target.'/.env');
     preg_match('/^APP_KEY=base64:(.+)$/m', $env, $key);
     check(isset($key[1]) && strlen(base64_decode($key[1], true)) === 32, 'Generate a 256-bit key');
+    // chmod may leave cached stat metadata on older supported PHP versions.
+    clearstatcache(true, $target.'/.env');
     check((fileperms($target.'/.env') & 0777) === 0600, '.env must have private permissions');
     (new EnvironmentFile)->prepare($target);
     check(file_get_contents($target.'/.env') === $env, 'Existing key must be preserved');
