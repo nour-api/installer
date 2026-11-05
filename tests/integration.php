@@ -50,7 +50,7 @@ try {
     chmod($temporary.'/bin/composer', 0700);
 
     $target = $temporary.'/installed app';
-    $output = $run([PHP_BINARY, __DIR__.'/../bin/nour-api', $target, '--no-git', '--no-plugins'], null, [
+    $output = $run([PHP_BINARY, __DIR__.'/../bin/nour-api', $target, '--no-plugins'], null, [
         'PATH' => $temporary.'/bin'.PATH_SEPARATOR.getenv('PATH'),
     ]);
     if (! str_contains($output, 'project is ready')) {
@@ -60,11 +60,15 @@ try {
     if (! preg_match('/^APP_KEY=base64:(.+)$/m', $environment, $matches) || strlen(base64_decode($matches[1], true)) !== 32) {
         throw new RuntimeException('Installed application has no valid application key.');
     }
+    if (! is_dir($target.'/.git') || $run(['git', 'ls-files'], $target) !== '') {
+        throw new RuntimeException('Git initialization must not stage or commit project files.');
+    }
+    $run(['git', 'check-ignore', '.env'], $target);
     $run([PHP_BINARY, 'artisan', 'list', '--raw'], $target);
     $run([PHP_BINARY, 'vendor/bin/phpunit', '--fail-on-risky', '--fail-on-warning'], $target);
     $smoke = '$app = require "bootstrap/app.php"; $response = $app->handle(NourApi\\Framework\\Http\\Request::create("/")); if ($response->getStatusCode() !== 200 || !str_starts_with($response->getContent(), "Nour-API")) { exit(1); }';
     $run([PHP_BINARY, '-r', $smoke], $target);
-    echo "PASS: real Composer create-project, private application key, Artisan list, generated application tests and HTTP dispatch using local framework\n";
+    echo "PASS: real Composer create-project, private application key, empty Git index, ignored .env, Artisan list, generated application tests and HTTP dispatch using local framework\n";
 } finally {
     $files->remove($temporary);
 }
