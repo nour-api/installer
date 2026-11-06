@@ -22,6 +22,7 @@ class NewCommand extends Command
             ->setDescription('Create a new Nour-API application from nour-api/nour-api')
             ->addArgument('name', InputArgument::REQUIRED, 'Directory / project name')
             ->addOption('project-version', null, InputOption::VALUE_REQUIRED, 'Skeleton version constraint (default: latest)', 'latest')
+            ->addOption('ref', 'r', InputOption::VALUE_REQUIRED, 'Alias for --project-version (retained for compatibility)')
             ->addOption('no-git', null, InputOption::VALUE_NONE, 'Skip Git initialization')
             ->addOption('prefer-source', null, InputOption::VALUE_NONE, 'Use --prefer-source instead of --prefer-dist')
             ->addOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Pass --ignore-platform-reqs to Composer')
@@ -65,6 +66,14 @@ class NewCommand extends Command
         }
         $cmd = array_merge($cmd, ['--', 'nour-api/nour-api', $target]);
         $version = (string) $input->getOption('project-version');
+        $legacyVersion = $input->getOption('ref');
+        if ($legacyVersion !== null) {
+            if ($version !== 'latest' && $version !== (string) $legacyVersion) {
+                $io->error('--ref and --project-version must select the same version.');
+                return Command::INVALID;
+            }
+            $version = (string) $legacyVersion;
+        }
         if ($version !== 'latest') {
             if (trim($version) === '') {
                 $io->error('The version constraint cannot be empty.');

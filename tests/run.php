@@ -109,6 +109,17 @@ try {
     $process = new Process([PHP_BINARY, $proxy, '--help']);
     $process->run();
     check($process->isSuccessful() && str_contains($process->getOutput(), 'COMPOSER-PROXY-AUTOLOAD'), 'Honor Composer global binary proxy autoload path');
+    foreach (['--ref', '-r'] as $index => $option) {
+        $legacy = new FakeNewCommand;
+        $tester = new CommandTester($legacy);
+        check($tester->execute(['name' => $root.'/legacy-'.$index, $option => '^2.2', '--no-git' => true]) === 0, 'Retain the published --ref/-r API');
+        check(end($legacy->calls[0][0]) === '^2.2', 'Legacy version constraint must reach Composer');
+    }
+    $conflict = new FakeNewCommand;
+    check((new CommandTester($conflict))->execute(['name' => $root.'/conflict', '--ref' => '^2.1', '--project-version' => '^2.2']) !== 0 && $conflict->calls === [], 'Reject conflicting version options before any subprocess');
+    $version = new Process([PHP_BINARY, __DIR__.'/../bin/nour-api', '--version']);
+    $version->run();
+    check($version->isSuccessful() && str_contains($version->getOutput(), '2.1.0'), 'Report the installer release version');
     echo "PASS: {$checks} installer regression checks\n";
 } finally {
     (new Filesystem)->remove($root);

@@ -6,7 +6,7 @@ require ($_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php');
 use Symfony\Component\Console\Application;
 use NourApi\Installer\NewCommand;
 
-$app = new Application('Nour-API Installer', '1.0.0');
+$app = new Application('Nour-API Installer', '2.1.0');
 $app->add(new NewCommand());
 $app->setDefaultCommand('new', true);
 $app->run();

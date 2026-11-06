@@ -27,19 +27,19 @@ $run = static function (array $command, ?string $cwd = null, ?array $env = null)
 try {
     $iterator = new RecursiveIteratorIterator(new RecursiveCallbackFilterIterator(
         new RecursiveDirectoryIterator($skeleton, FilesystemIterator::SKIP_DOTS),
-        static fn ($file) => ! in_array($file->getFilename(), ['.git', 'vendor', '.env', 'composer.local.json', 'composer.local.lock', 'composer.lock', '.phpunit.cache'], true)
+        static fn ($file) => ! in_array($file->getFilename(), ['.git', 'vendor', '.env', 'composer.local.json', 'composer.local.lock', 'composer.ci.json', 'composer.ci.lock', 'composer.lock', '.phpunit.cache'], true)
             && ! str_ends_with($file->getFilename(), '.log')
     ), RecursiveIteratorIterator::SELF_FIRST);
     $files->mirror($skeleton, $temporary.'/skeleton', $iterator);
     $manifest = json_decode(file_get_contents($temporary.'/skeleton/composer.json'), true, 512, JSON_THROW_ON_ERROR);
     $manifest['repositories'] = [[
         'type' => 'path', 'url' => $framework,
-        'options' => ['versions' => ['nour-api/framework' => '2.1.1'], 'symlink' => false],
+        'options' => ['versions' => ['nour-api/framework' => '2.2.0'], 'symlink' => false],
     ]];
     file_put_contents($temporary.'/skeleton/composer.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     $repository = json_encode([
         'type' => 'path', 'url' => $temporary.'/skeleton',
-        'options' => ['versions' => ['nour-api/nour-api' => '2.1.1'], 'symlink' => false],
+        'options' => ['versions' => ['nour-api/nour-api' => '2.2.0'], 'symlink' => false],
     ], JSON_UNESCAPED_SLASHES);
     $files->mkdir($temporary.'/bin');
     $wrapper = "#!/usr/bin/env php\n<?php\nrequire ".var_export(__DIR__.'/../vendor/autoload.php', true).";\n";
